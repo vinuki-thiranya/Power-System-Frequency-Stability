@@ -44,13 +44,13 @@ const GridModel = (function () {
 
   // Calibrated values printed by the notebook (section 6.10). They are the default settings of this page.
   const CAL = {
-    Ek: 6941.3,          // [MW s]  stored kinetic energy
-    D: 36.134,           // [MW/Hz] load damping
-    K: 9.41116,          // [MW/Hz] governor gain
-    Tg: 0.549865,        // [s]     governor lag
-    Pcap: 24.3264,       // [MW]    largest extra governor power
-    dP0: 40.0834,        // [MW]    first solar loss
-    relief: 0.421506     // [-]     share of each shed block that is real relief
+    Ek: 6941.303593,     // [MW s]  stored kinetic energy
+    D: 36.13398071,      // [MW/Hz] load damping
+    K: 9.411158467,      // [MW/Hz] governor gain
+    Tg: 0.5498645436,    // [s]     governor lag
+    Pcap: 24.32644207,   // [MW]    largest extra governor power
+    dP0: 40.08340656,    // [MW]    first solar loss
+    relief: 0.4215063921 // [-]     share of each shed block that is real relief
   };
 
   // Values the notebook prints for the default settings, with the tolerance it states.
@@ -271,9 +271,10 @@ if (typeof document !== "undefined") (function () {
     if (!run) return;
     // simulated frequency up to the time shown
     const tr = run.trace, n = Math.min(shown, tr.t.length - 1);
+    ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t, W - m.l - m.r, H - m.t - m.b); ctx.clip();   // keep the line inside the axes
     ctx.strokeStyle = cssVar("--accent"); ctx.lineWidth = 2.5; ctx.beginPath();
-    for (let i = 0; i <= n; i++) { const x = X(tr.t[i]), y = Y(Math.max(tr.f[i], fLo)); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
-    ctx.stroke();
+    for (let i = 0; i <= n; i++) { const x = X(tr.t[i]), y = Y(tr.f[i]); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+    ctx.stroke(); ctx.restore();
     // load-shedding markers
     ctx.fillStyle = cssVar("--good");
     run.tFire.forEach((tf, i) => {
