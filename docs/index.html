@@ -3,179 +3,124 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>[Project Title]: Interactive Demo</title>
-<!--
-  STARTER TEMPLATE. The example simulation below is a Monte Carlo estimate of pi.
-  It is here only to show the required structure:
-    - at least three adjustable parameters
-    - Start / Pause / Reset
-    - a live visualisation
-    - at least one quantitative output, checked against a reference value
-    - an "About / How to use" panel
-  Replace the SIMULATION section and the controls with your own model.
--->
-<style>
-  :root { --ink:#1b2430; --muted:#5d6876; --line:#d8dee6; --accent:#1f6f8b; --bg:#f6f8fa; --ok:#1a7f37; --warn:#b35900; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--bg); }
-  header { padding:16px 20px; background:#fff; border-bottom:1px solid var(--line); }
-  header h1 { margin:0; font-size:1.3rem; }
-  header p { margin:4px 0 0; color:var(--muted); font-size:.95rem; }
-  main { display:grid; grid-template-columns: 300px 1fr; gap:16px; padding:16px 20px; max-width:1200px; margin:0 auto; }
-  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
-  .panel { background:#fff; border:1px solid var(--line); border-radius:8px; padding:14px; }
-  label { display:block; font-size:.9rem; margin:12px 0 4px; }
-  label span { float:right; font-variant-numeric: tabular-nums; color:var(--muted); }
-  input[type=range] { width:100%; }
-  input[type=number] { width:100%; padding:6px; border:1px solid var(--line); border-radius:4px; }
-  .buttons { display:flex; gap:8px; margin-top:16px; }
-  button { flex:1; padding:8px; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:6px; font-size:.95rem; cursor:pointer; }
-  button.secondary { background:#fff; color:var(--accent); }
-  canvas { width:100%; max-width:560px; aspect-ratio:1; display:block; margin:0 auto; background:#fff; border:1px solid var(--line); }
-  .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin-top:14px; }
-  .stat { border:1px solid var(--line); border-radius:6px; padding:10px; }
-  .stat .k { font-size:.8rem; color:var(--muted); }
-  .stat .v { font-size:1.2rem; font-variant-numeric: tabular-nums; }
-  .check.ok { color:var(--ok); } .check.warn { color:var(--warn); }
-  details { margin-top:16px; }
-  summary { cursor:pointer; font-weight:600; }
-  details p, details li { font-size:.92rem; line-height:1.45; }
-</style>
+<title>Grid Frequency Collapse Simulator: Sri Lanka, 9 February 2025</title>
+<meta name="description" content="Interactive model of the grid frequency during the 9 February 2025 Sri Lanka blackout. Change the inverter settings, battery, inertia and load shedding and see whether the grid survives.">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>[Project Title]</h1>
-  <p>[One-sentence description of what the simulation shows.]</p>
+  <h1>Why did a solar-heavy grid collapse in 22 seconds?</h1>
+  <p>A frequency model of the 9 February 2025 Sri Lanka blackout. Change one thing at a time and see whether the grid would have survived.</p>
 </header>
 
 <main>
-  <section class="panel" aria-label="Controls">
-    <!-- REPLACE: your own parameters (at least three) -->
-    <label for="nTotal">Total samples <span id="nTotalVal"></span></label>
-    <input id="nTotal" type="range" min="1000" max="200000" step="1000" value="50000">
+  <section class="panel controls" aria-label="Controls">
+    <h2>Settings</h2>
 
-    <label for="speed">Samples per frame (speed) <span id="speedVal"></span></label>
-    <input id="speed" type="range" min="10" max="5000" step="10" value="200">
+    <label for="solar">Embedded solar share of generation <span id="solarVal"></span></label>
+    <input id="solar" type="range" min="20" max="70" step="1" value="50">
 
-    <label for="seed">Random seed</label>
-    <input id="seed" type="number" value="42" min="1" step="1">
+    <label for="wrong">Wrongly set inverters still in service <span id="wrongVal"></span></label>
+    <input id="wrong" type="range" min="0" max="100" step="1" value="100">
+
+    <label for="battery">Fast battery size <span id="batteryVal"></span></label>
+    <input id="battery" type="range" min="0" max="150" step="1" value="0">
+
+    <label for="inertia">Inertia (stored energy) <span id="inertiaVal"></span></label>
+    <input id="inertia" type="range" min="0.5" max="3" step="0.05" value="1">
+
+    <label for="relief">Load-shedding relief factor <span id="reliefVal"></span></label>
+    <input id="relief" type="range" min="0.3" max="1" step="0.01" value="0.42">
+
+    <label for="governor">Governor response delivered <span id="governorVal"></span></label>
+    <input id="governor" type="range" min="24" max="230" step="1" value="24">
+
+    <label for="speed">Playback speed</label>
+    <select id="speed">
+      <option value="1">Real time</option>
+      <option value="3" selected>3 times faster</option>
+      <option value="10">10 times faster</option>
+      <option value="0">Instant</option>
+    </select>
 
     <div class="buttons">
-      <button id="startBtn">Start</button>
-      <button id="resetBtn" class="secondary">Reset</button>
+      <button id="startBtn" type="button">Start</button>
+      <button id="pauseBtn" type="button" class="secondary" disabled>Pause</button>
+      <button id="resetBtn" type="button" class="secondary">Reset</button>
     </div>
-
-    <details>
-      <summary>About / How to use</summary>
-      <!-- REPLACE: explain your model, its parameters and how to read the outputs -->
-      <p>This example estimates &pi; by sampling random points in a unit square and counting the fraction that falls inside the quarter circle: &pi; &asymp; 4 &times; (inside / total).</p>
-      <ul>
-        <li>Set the parameters, then press <b>Start</b>. <b>Pause</b> stops the run; <b>Reset</b> clears it and applies new settings.</li>
-        <li>The estimate is shown with a 95% confidence interval. The error should shrink roughly as 1/&radic;N.</li>
-        <li>The check compares the estimate with the reference value; the notebook gives the same result for the default settings.</li>
-      </ul>
-    </details>
+    <button id="defaultsBtn" type="button" class="link">Restore the settings of 9 February 2025</button>
   </section>
 
   <section class="panel" aria-label="Simulation">
-    <canvas id="view" width="560" height="560" aria-label="Live visualisation"></canvas>
-    <div class="stats">
-      <div class="stat"><div class="k">Samples so far</div><div class="v" id="outN">0</div></div>
-      <div class="stat"><div class="k">Estimate &plusmn; 95% CI</div><div class="v" id="outEst">–</div></div>
-      <div class="stat"><div class="k">Reference value</div><div class="v" id="outRef">3.14159</div></div>
-      <div class="stat"><div class="k">Check</div><div class="v check" id="outCheck">–</div></div>
+    <div class="chart-head">
+      <h2>System frequency</h2>
+      <label class="inline"><input id="showRecord" type="checkbox" checked> show the seven recorded values</label>
     </div>
+    <canvas id="view" aria-label="Live plot of system frequency against time" role="img"></canvas>
+    <p class="legend"><span class="key line"></span> model <span class="key dot"></span> recorded <span class="key tri"></span> load-shedding stage fires</p>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Status</div><div class="v" id="outStatus">Press Start</div></div>
+      <div class="stat"><div class="k">Lowest frequency</div><div class="v" id="outMin">–</div></div>
+      <div class="stat"><div class="k">Time to collapse (below 47 Hz)</div><div class="v" id="outTime">–</div></div>
+      <div class="stat"><div class="k">Solar tripped</div><div class="v" id="outSolar">–</div></div>
+      <div class="stat"><div class="k">Load shed (nominal)</div><div class="v" id="outShed">–</div></div>
+    </div>
+
+    <div class="reference" aria-live="polite">
+      <span class="badge" id="refBadge">–</span>
+      <div><b>Reference check, settings of 9 February 2025:</b> <span id="refText"></span></div>
+    </div>
+  </section>
+
+  <section class="panel about" aria-label="About and how to use">
+    <details open>
+      <summary>About / How to use</summary>
+      <div class="about-grid">
+        <div>
+          <h3>What this is</h3>
+          <p>On 9 February 2025 a fault at one substation was cleared in about a second, yet the whole island lost power 22 seconds later. This page runs a small model of those seconds: the swing equation for the system frequency and a governor equation, solved with a fourth-order Runge-Kutta method in 10 ms steps, plus rules for rooftop-solar inverters and for the automatic load-shedding scheme. The default settings are calibrated to the seven recorded frequency values.</p>
+          <h3>How to use it</h3>
+          <ol>
+            <li>Press <b>Start</b> with the default settings. The frequency follows the record and falls below 47 Hz at about 16 s.</li>
+            <li>Press <b>Reset</b>, change one setting, and press <b>Start</b> again.</li>
+            <li><b>Pause</b> freezes the run; <b>Reset</b> clears it. Moving any slider also resets.</li>
+          </ol>
+          <h3>Try this</h3>
+          <ul>
+            <li>Set <i>wrongly set inverters</i> to 0%: the frequency settles near 49.2 Hz and nothing else trips.</li>
+            <li>Set the <i>battery</i> to 40 MW: it holds the frequency above 49.5 Hz, so the first inverters never trip.</li>
+            <li>Set <i>inertia</i> to 2.0: the grid still collapses, only later. Inertia buys time; it does not close the power gap.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The settings</h3>
+          <ul>
+            <li><b>Embedded solar share:</b> share of generation from sources inside the distribution network. About 50% on the day. More solar means fewer spinning machines and more solar on each shed feeder.</li>
+            <li><b>Wrongly set inverters:</b> 41% of surveyed inverters were set to disconnect above the prescribed 47 Hz. 100% keeps them all as surveyed; 0% means every inverter waits until 47 Hz.</li>
+            <li><b>Fast battery:</b> responds below 49.8 Hz and reaches full power at 49.5 Hz.</li>
+            <li><b>Inertia:</b> multiplies the stored kinetic energy of the spinning machines.</li>
+            <li><b>Relief factor:</b> share of each shed block that is real relief. Below 1 because shed feeders also carry rooftop solar.</li>
+            <li><b>Governor response:</b> extra power the generators deliver. About 24 MW was delivered on the day; 230 MW was held in reserve.</li>
+          </ul>
+          <h3>Reading the outputs</h3>
+          <ul>
+            <li>The dashed lines mark 49.5 Hz (first inverters trip), 48.75 Hz (load shedding starts), 47.5 Hz (last stage) and 47.0 Hz (most inverters trip: collapse).</li>
+            <li><b>Survived</b> means the frequency stopped falling above 47 Hz. A run still falling after 60 s is not a survival.</li>
+            <li>The <b>reference check</b> reruns the default settings and compares two numbers with the notebook.</li>
+          </ul>
+          <h3>Limits</h3>
+          <p>One frequency for the whole island: no voltage and no network. The first solar loss was caused by a voltage dip and is put in by hand. The model is not expected to be exact below about 46 Hz, where generator protection takes over. Results for settings far from the day's conditions are indicative only.</p>
+        </div>
+      </div>
+    </details>
   </section>
 </main>
 
-<script>
-// ---------- seeded random number generator (reproducible runs) ----------
-function mulberry32(a) {
-  return function () {
-    a |= 0; a = a + 0x6D2B79F5 | 0;
-    let t = Math.imul(a ^ a >>> 15, 1 | a);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-    return ((t ^ t >>> 14) >>> 0) / 4294967296;
-  };
-}
+<footer>
+  <p>Data: N. S. Wettasinghe, <i>Engineer</i> 59(1), 2026; Public Utilities Commission of Sri Lanka, public hearing report, 2026; Ceylon Electricity Board committee report, 2025. Code under the MIT licence.</p>
+</footer>
 
-// ---------- SIMULATION (REPLACE with your own model) ----------
-const REFERENCE = Math.PI;          // analytic / notebook reference value
-const sim = { rng: null, n: 0, inside: 0, nTotal: 0 };
-
-function initSim(params) {
-  sim.rng = mulberry32(params.seed);
-  sim.n = 0; sim.inside = 0; sim.nTotal = params.nTotal;
-}
-
-function stepSim(k, draw) {                 // advance the model by k samples
-  for (let i = 0; i < k && sim.n < sim.nTotal; i++) {
-    const x = sim.rng(), y = sim.rng();
-    const hit = x * x + y * y <= 1;
-    sim.n++; if (hit) sim.inside++;
-    draw(x, y, hit);
-  }
-}
-
-function estimate() {                       // quantitative output with uncertainty
-  if (sim.n === 0) return null;
-  const p = sim.inside / sim.n;
-  const est = 4 * p;
-  const se = 4 * Math.sqrt(p * (1 - p) / sim.n);
-  return { est, ci: 1.96 * se };
-}
-
-// ---------- UI wiring (keep the pattern, adapt the details) ----------
-const $ = (id) => document.getElementById(id);
-const ctx = $("view").getContext("2d");
-let running = false, frame = null;
-
-function params() {
-  return { nTotal: +$("nTotal").value, speed: +$("speed").value, seed: Math.max(1, Math.floor(+$("seed").value) || 1) };
-}
-function showParams() {
-  $("nTotalVal").textContent = (+$("nTotal").value).toLocaleString();
-  $("speedVal").textContent = (+$("speed").value).toLocaleString();
-}
-function clearView() {
-  const w = ctx.canvas.width;
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, w);
-  ctx.strokeStyle = "#1b2430"; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(0, w, w, -Math.PI / 2, 0); ctx.stroke();
-}
-function drawPoint(x, y, hit) {
-  const w = ctx.canvas.width;
-  ctx.fillStyle = hit ? "rgba(31,111,139,0.55)" : "rgba(179,89,0,0.55)";
-  ctx.fillRect(x * w, (1 - y) * w, 1.5, 1.5);
-}
-function showOutputs() {
-  $("outN").textContent = sim.n.toLocaleString();
-  const e = estimate();
-  if (!e) { $("outEst").textContent = "–"; $("outCheck").textContent = "–"; $("outCheck").className = "v check"; return; }
-  $("outEst").textContent = `${e.est.toFixed(4)} ± ${e.ci.toFixed(4)}`;
-  const ok = Math.abs(e.est - REFERENCE) <= e.ci;
-  $("outCheck").textContent = ok ? "Within CI" : "Outside CI";
-  $("outCheck").className = "v check " + (ok ? "ok" : "warn");
-}
-function loop() {
-  stepSim(params().speed, drawPoint);
-  showOutputs();
-  if (sim.n >= sim.nTotal) { stop(); $("startBtn").textContent = "Done"; $("startBtn").disabled = true; return; }
-  frame = requestAnimationFrame(loop);
-}
-function start() { running = true; $("startBtn").textContent = "Pause"; frame = requestAnimationFrame(loop); }
-function stop() { running = false; if (frame) cancelAnimationFrame(frame); $("startBtn").textContent = "Start"; }
-function reset() {
-  stop(); initSim(params()); clearView(); showOutputs();
-  $("startBtn").disabled = false; $("startBtn").textContent = "Start";
-}
-
-$("startBtn").addEventListener("click", () => (running ? stop() : start()));
-$("resetBtn").addEventListener("click", reset);
-["nTotal", "speed"].forEach((id) => $(id).addEventListener("input", showParams));
-["nTotal", "seed"].forEach((id) => $(id).addEventListener("change", reset));
-$("outRef").textContent = REFERENCE.toFixed(5);
-showParams(); reset();
-</script>
+<script src="script.js"></script>
 </body>
 </html>
