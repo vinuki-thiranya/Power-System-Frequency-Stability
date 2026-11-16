@@ -1,0 +1,8 @@
+stage,threshold_hz,delay_s,rocof_element,load_mw,share_percent,rooftop_installed_mw,note
+I,48.75,0.1,no,65.4,8.9,71.280,as printed
+II,48.50,0.5,no,58.5,8.0,50.536,as printed
+III,48.25,0.5,no,65.7,9.0,82.557,as printed
+IV,48.00,0.5,no,75.2,10.3,70.489,as printed
+V,47.50,0.0,no,5.8,0.8,5.321,as printed (instantaneous)
+V_or_dfdt,47.50,0.0,yes,23.2,3.2,22.244,as printed: 47.5 Hz instantaneous OR below 49 Hz with df/dt beyond 0.85 Hz/s for 100 ms
+dfdt,,,yes,112.3,15.3,116.388,no trigger printed in the journal table; the utility committee report gives it as below 49 Hz with df/dt beyond 0.85 Hz/s for 100 ms

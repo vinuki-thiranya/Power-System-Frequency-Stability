@@ -1,0 +1,34 @@
+name,value,unit,source,table_or_page,status
+f0,50.0,Hz,Nominal system frequency,-,verified
+f_init,50.12,Hz,Wettasinghe 2026,Table 8 row 1,verified
+P_total,1489,MW,Wettasinghe 2026,Section 3.2,verified
+P_dispatched,739,MW,Wettasinghe 2026,Table 4,verified
+P_embedded,750,MW,Derived: 1489 - 739,Section 3.2,derived
+spinning_reserve,230,MW,Wettasinghe 2026,Table 5,verified
+governor_cap,42,MW,Wettasinghe 2026 (Victoria Unit 2 rose from 29 to 71 MW),Table 8,verified
+dP0_low,25,MW,Wettasinghe 2026 (corridor flow increase),Section 6 and Figure 7,verified
+dP0_high,77,MW,PUCSL public hearing report 2026 and PUCSL presentation 2026,Report p. 15; slide 4,verified
+count_49_5,177,count,PUCSL public hearing report 2026 (inverters set at 49.5 Hz),Table 6.6 p. 16; slide 5,verified
+count_48_49_5,282,count,PUCSL public hearing report 2026 (inverters set between 48 and 49.5 Hz),Table 6.6 p. 16; slide 5,verified
+count_47_48,196,count,PUCSL public hearing report 2026 (inverters set above 47 up to 48 Hz),Table 6.6 p. 16; slide 5,verified
+count_47,953,count,PUCSL public hearing report 2026 (inverters set at 47 Hz),Table 6.6 p. 16; slide 5,verified
+n_inverters,1608,count,PUCSL public hearing report 2026 (inverter sample size),Table 6.6 p. 16; slides 4 and 5,verified
+f_trip_high,49.5,Hz,Wettasinghe 2026 (older inverter window 49.5 to 50.5 Hz),Section 7,verified
+f_trip_mid,48.0,Hz,PUCSL public hearing report 2026 (band edge),Table 6.6 p. 16,verified
+f_trip_low,47.0,Hz,PUCSL public hearing report 2026 and PUCSL presentation 2026 (prescribed setting),Figure 6.8 p. 15; slide 5,verified
+rocof_limit,0.85,Hz/s,Wettasinghe 2026,Table 7,verified
+rocof_arm,49.0,Hz,Wettasinghe 2026,Table 7,verified
+rocof_delay,0.1,s,Wettasinghe 2026,Table 7,verified
+relief_reported,0.496,-,Wettasinghe 2026 (load-shedding effectiveness about 49.6%),Section 3.2,verified
+t_loss,0.0,s,Assumed: first loss already in effect at the start of the record (the disturbance recorder shows frequency falling during the fault),PUCSL report Table 6.3 p. 14,assumed
+D_low,30,MW/Hz,Assumed: load falls 1% per 1% frequency drop on 1489 MW (value used by Jathunga et al. 2021),-,assumed
+D_high,60,MW/Hz,Assumed: load falls 2% per 1% frequency drop on 1489 MW,-,assumed
+f_collapse,47.0,Hz,Modelling choice (bulk of inverters disconnect here),-,assumed
+f_collapse_alt,46.0,Hz,Modelling choice (repeat test),-,assumed
+battery_f_start,49.8,Hz,Assumed battery droop start,-,assumed
+battery_df_full,0.3,Hz,Assumed: full battery power 0.3 Hz below the start,-,assumed
+battery_tau_low,0.1,s,Aurecon 2018 (Hornsdale battery responds in about 100 ms),-,verified
+battery_tau_high,0.5,s,MacIver et al. 2021 (fast response contracts allow at most 0.5 s delay),-,verified
+governor_droop,0.02,-,PUCSL presentation 2026 and PUCSL public hearing report 2026,Slide 6; Figure 6.14 p. 20,verified
+rooftop_installed,1606,MW,"PUCSL public hearing report 2026 (installed rooftop solar, February 2025)",p. 15,verified
+rocof_final_recorded,1.3,Hz/s,CEB committee report 2025 (rate of fall from 47.5 to 43.3 Hz),pp. 34-37,verified
